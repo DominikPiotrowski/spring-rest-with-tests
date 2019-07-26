@@ -43,7 +43,7 @@ public class MovieServiceTestIntegrated {
     @Test //OK
     public void addMovie() {
         Movie movie = Movie.builder().title("Wrath of Khan").productionYear(Year.of(1982)).maker("Meyer").build();
-        movieService.addMovie(movie); //TODO null pointer...?
+        movieService.addMovie(movie);
         assertThat(movie.getMaker(), equalTo("Meyer"));
         assertSame(movie.getId(), 5L);
     }
@@ -57,14 +57,14 @@ public class MovieServiceTestIntegrated {
 
     @Test
     public void findById() {
-        Movie movie = movieService.findById(1L); //TODO null pointer...?
+        Movie movie = movieService.findById(1L);
         assertThat(movie.getProductionYear(), equalTo(Year.of(1984)));
         assertThat(movie.getMaker(), equalTo("Cameron"));
     }
 
     @Test
     public void findByTitle() {
-        Movie movie = movieService.findByTitle("Terminator"); //TODO null pointer...?
+        Movie movie = movieService.findByTitle("Terminator");
         assertThat(movie.getId(), equalTo(1L));
         assertThat(movie.getMaker(), equalTo("Cameron"));
     }
@@ -77,21 +77,21 @@ public class MovieServiceTestIntegrated {
 
     @Test
     public void findByMaker() {
-        List movies = iMovieCustomRepo.findByMaker("Cameron"); //TODO null pointer...?
+        List movies = iMovieCustomRepo.findByMaker("Cameron");
         assertThat(movies.size(), equalTo(1));
     }
 
     @Test
     public void deleteById() {
         Long id = 1L;
-        movieService.deleteById(id); //TODO null pointer...?
+        movieService.deleteById(id);
         verify(movieService, times(1)).deleteById(id);
     }
 
     @Test
     public void updateMovie() {
         Long id = 1L;
-        Movie movie = movieService.findById(id); //TODO null pointer...?
+        Movie movie = movieService.findById(id);
         Movie movieUpdated = movieService.updateMovie(1L, "Hoho", Year.of(9999), "Santa");
         iMovieRepo.save(movieUpdated);
         assertThat(movie.getId(), equalTo(movieUpdated.getId()));
