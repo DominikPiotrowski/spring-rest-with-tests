@@ -1,8 +1,10 @@
 package com.dominikpiotrowski.springrest.demo.services;
 
+import com.dominikpiotrowski.springrest.demo.bootstrap.MovieBootstrap;
 import com.dominikpiotrowski.springrest.demo.dao.Entity.Movie;
 import com.dominikpiotrowski.springrest.demo.dao.IMovieCustomRepo;
 import com.dominikpiotrowski.springrest.demo.dao.IMovieRepo;
+import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,17 +36,8 @@ public class MovieServiceTestIntegrated {
 
     @Before
     public void setUp() {
-//        MovieService movieService = new MovieService(iMovieRepo, iMovieCustomRepo);
-//        Movie m1 = new Movie(1L, "Terminator", Year.of(1984), "Cameron");
-//        Movie m2 = new Movie(2L, "Space Oddysey", Year.of(1968), "Cubrick");
-//        Movie m3 = new Movie(3L, "Watchmen", Year.of(2009), "Snyder");
-//        Movie m4 = new Movie(4L, "Star Trek", Year.of(1979), "Wise");
-//        movieService.addMovie(m1);
-//        movieService.addMovie(m2);
-//        movieService.addMovie(m3);
-//        movieService.addMovie(m4);
-
-        movieService.addMovies(); //TODO  powinno dodać filmy
+        MovieBootstrap bootstrap = new MovieBootstrap(iMovieRepo, iMovieCustomRepo);
+        bootstrap.addMovies();
     }
 
     @Test //OK

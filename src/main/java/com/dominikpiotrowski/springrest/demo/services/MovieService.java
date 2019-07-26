@@ -4,8 +4,6 @@ import com.dominikpiotrowski.springrest.demo.dao.Entity.Movie;
 import com.dominikpiotrowski.springrest.demo.dao.IMovieCustomRepo;
 import com.dominikpiotrowski.springrest.demo.dao.IMovieRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import java.time.Year;
 import java.util.ArrayList;
@@ -21,14 +19,6 @@ public class MovieService {
     public MovieService(IMovieRepo iMovieRepo, IMovieCustomRepo iMovieCustomRepo) {
         this.iMovieRepo = iMovieRepo;
         this.iMovieCustomRepo = iMovieCustomRepo;
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    public void addMovies() {
-        addMovie(new Movie(1L, "Terminator", Year.of(1984), "Cameron"));
-        addMovie(new Movie(2L, "Space Oddysey", Year.of(1968), "Cubrick"));
-        addMovie(new Movie(3L, "Watchmen", Year.of(2009), "Snyder"));
-        addMovie(new Movie(4L, "Star Trek", Year.of(1979), "Wise"));
     }
 
     public void addMovie(Movie movie) {
