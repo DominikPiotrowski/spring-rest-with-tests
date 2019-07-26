@@ -23,5 +23,4 @@ public class Movie {
     private String title;
     private Year productionYear;
     private String maker;
-//    private Maker maker;
 }

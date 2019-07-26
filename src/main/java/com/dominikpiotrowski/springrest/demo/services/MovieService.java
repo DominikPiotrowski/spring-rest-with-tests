@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -44,17 +44,16 @@ public class MovieService {
                 .orElseThrow(() -> new NoSuchMovieException("No such movie found."));
     }
 
-    public Movie findByTitle(String title) {
-        return iMovieCustomRepo.findByTitle(title)
-                .orElseThrow(() -> new NoSuchMovieException("No such movie found."));
+    public Movie findByTitle(String title) throws NoSuchMovieException {
+        return iMovieCustomRepo.findByTitle(title);
     }
 
-    public List findByProductionYear(Year year) {
-        return iMovieCustomRepo.findByProductionYear(year);
+    public List findByProductionYear(Year year) throws NoSuchMovieException {
+        return new ArrayList(iMovieCustomRepo.findByProductionYear(year));
     }
 
-    public List findByMaker(String maker) {
-        return iMovieCustomRepo.findByMaker(maker);
+    public List findByMaker(String maker) throws NoSuchMovieException {
+        return new ArrayList(iMovieCustomRepo.findByMaker(maker));
     }
 
     public void deleteById(Long id) {
@@ -66,11 +65,7 @@ public class MovieService {
         Movie m = iMovieRepo.findById(id)
                 .orElseThrow(() -> new NoSuchMovieException("No such movie found."));
 
-        m.setTitle(title);
-        m.setProductionYear(productionYear);
-        m.setMaker(maker);
-
-        m.builder().build();
+        m.builder().title(title).productionYear(productionYear).maker(maker).build();
         return iMovieRepo.save(m);
     }
 
@@ -79,16 +74,16 @@ public class MovieService {
                 .orElseThrow(() -> new NoSuchMovieException("No such movie found."));
 
         if (foundMovie.getClass() != null) {
-            if (foundMovie.getId() != updatedMovie.getId() && foundMovie.getId() != null) {
+            if (foundMovie.getId().equals(updatedMovie.getId()) && foundMovie.getId() != null) {
                 iMovieRepo.save(foundMovie);
             }
-            if (foundMovie.getTitle() != updatedMovie.getTitle() && foundMovie.getId() != null) {
+            if (foundMovie.getTitle().equals(updatedMovie.getTitle()) && foundMovie.getId() != null) {
                 iMovieRepo.save(foundMovie);
             }
-            if (foundMovie.getProductionYear() != updatedMovie.getProductionYear() && foundMovie.getId() != null) {
+            if (foundMovie.getProductionYear().equals(updatedMovie.getProductionYear()) && foundMovie.getId() != null) {
                 iMovieRepo.save(foundMovie);
             }
-            if (foundMovie.getMaker() != updatedMovie.getMaker() && foundMovie.getId() != null) {
+            if (foundMovie.getMaker().equals(updatedMovie.getMaker()) && foundMovie.getId() != null) {
                 iMovieRepo.save(foundMovie);
             }
         }

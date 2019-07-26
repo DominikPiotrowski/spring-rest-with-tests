@@ -8,47 +8,52 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/movies")
-public class MovieApi {
+@RequestMapping(MovieController.BASE_URL)
+public class MovieController {
+
+    public static final String BASE_URL = "/api/movies";
 
     private MovieService movieService;
 
     @Autowired
-    public MovieApi(MovieService movieService) {
+    public MovieController(MovieService movieService) {
         this.movieService = movieService;
     }
 
     @GetMapping("/findAll")
     @ResponseStatus(HttpStatus.FOUND)
-    public Iterable<Movie> findAll() {
-        return movieService.findAll();
+    public List findAll() {
+        List<Movie> allMovies = movieService.findAll();
+        return new ArrayList(allMovies);
     }
 
     @GetMapping("/findById")
     @ResponseStatus(HttpStatus.FOUND)
-    public Optional<Movie> findById(@RequestParam Long id) {
-        return Optional.ofNullable(movieService.findById(id));
+    public Movie findById(@RequestParam Long id) {
+        return movieService.findById(id);
     }
 
     @GetMapping("/findByTitle")
     @ResponseStatus(HttpStatus.FOUND)
-    public Optional<Movie> findByTitle(@RequestParam String title) {
-        return Optional.ofNullable(movieService.findByTitle(title));
+    public Movie findByTitle(@RequestParam String title) {
+        return movieService.findByTitle(title);
     }
 
     @GetMapping("/findByProductionYear")
     @ResponseStatus(HttpStatus.FOUND)
-    public Iterable<Movie> findByProductionYear(@RequestParam Year year) {
-        return movieService.findByProductionYear(year);
+    public List findByProductionYear(@RequestParam Year year) {
+        List<Movie> moviesWithGivenProductionYear = movieService.findByProductionYear(year);
+        return new ArrayList(moviesWithGivenProductionYear);
     }
     @GetMapping("/findByMaker")
     @ResponseStatus(HttpStatus.FOUND)
-    public Iterable<Movie> findByMaker(@RequestParam String maker) {
-        return movieService.findByMaker(maker);
+    public List findByMaker(@RequestParam String maker) {
+        List<Movie> moviesWithGivenMaker = movieService.findByMaker(maker);
+        return new ArrayList(moviesWithGivenMaker);
     }
 
     @DeleteMapping("/deleteById")
