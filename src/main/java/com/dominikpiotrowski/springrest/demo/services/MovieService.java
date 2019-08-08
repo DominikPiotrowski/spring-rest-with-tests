@@ -1,82 +1,140 @@
 package com.dominikpiotrowski.springrest.demo.services;
 
+import com.dominikpiotrowski.springrest.demo.mapper.MovieMapper;
 import com.dominikpiotrowski.springrest.demo.dao.Entity.Movie;
-import com.dominikpiotrowski.springrest.demo.dao.IMovieCustomRepo;
-import com.dominikpiotrowski.springrest.demo.dao.IMovieRepo;
+import com.dominikpiotrowski.springrest.demo.dao.Entity.dto.MovieDataTransfer;
+import com.dominikpiotrowski.springrest.demo.repository.IMovieRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.time.Year;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MovieService {
 
     private IMovieRepo iMovieRepo;
-    private IMovieCustomRepo iMovieCustomRepo;
+    private MovieMapper movieMapper;
 
     @Autowired
-    public MovieService(IMovieRepo iMovieRepo, IMovieCustomRepo iMovieCustomRepo) {
+    public MovieService(IMovieRepo iMovieRepo, MovieMapper movieMapper) {
         this.iMovieRepo = iMovieRepo;
-        this.iMovieCustomRepo = iMovieCustomRepo;
+        this.movieMapper = movieMapper;
     }
 
-    public void addMovie(Movie movie) {
-        iMovieRepo.save(movie);
+    public MovieDataTransfer addMovie(MovieDataTransfer movieDataTransfer) {
+        Movie movie = movieMapper.movieDtoToMovie(movieDataTransfer);
+        return saveAndReturnDtoMovie(movie);
     }
 
-    public List<Movie> findAll() {
-        return (List<Movie>) iMovieRepo.findAll();
+    private MovieDataTransfer saveAndReturnDtoMovie(Movie movie) {
+        Movie savedMovie = iMovieRepo.save(movie);
+        return movieMapper.movieToMovieDto(savedMovie);
     }
 
-    public Movie findById(Long id) {
-        return iMovieRepo.findById(id)
+    public List<MovieDataTransfer> findAll() {
+        List<Movie> movies = (List<Movie>) iMovieRepo.findAll();
+        List<MovieDataTransfer> found = movies.stream()
+                .map(movie -> movieMapper.movieToMovieDto(movie))
+                .collect(Collectors.toList());
+
+        if (found.equals(Collections.emptyList())) {
+            throw new NoSuchMovieException("No such movie found.");
+        } else {
+            return found;
+        }
+    }
+
+    public MovieDataTransfer getMovieById(Long id) {
+        MovieDataTransfer found = iMovieRepo.findById(id)
+                .map(movie -> movieMapper.movieToMovieDto(movie))
                 .orElseThrow(() -> new NoSuchMovieException("No such movie found."));
+        return found;
     }
 
-    public Movie findByTitle(String title) throws NoSuchMovieException {
-        return iMovieCustomRepo.findByTitle(title);
+    public MovieDataTransfer getMovieByTitle(String title) {
+        MovieDataTransfer found = iMovieRepo.findByTitle(title)
+                .map(movie -> movieMapper.movieToMovieDto(movie))
+                .orElseThrow(() -> new NoSuchMovieException("No such movie found."));
+        return found;
     }
 
-    public List findByProductionYear(Year year) throws NoSuchMovieException {
-        return new ArrayList(iMovieCustomRepo.findByProductionYear(year));
+    public List<MovieDataTransfer> getMovieByProductionYear(Year year) {
+        List<Movie> movies = iMovieRepo.findByProductionYear(year);
+        List<MovieDataTransfer> found = movies.stream()
+                .map(movie -> movieMapper.movieToMovieDto(movie))
+                .collect(Collectors.toList());
+
+        if (found.equals(Collections.emptyList())) {
+            throw new NoSuchMovieException("No such movie found.");
+        } else {
+            return found;
+        }
     }
 
-    public List findByMaker(String maker) throws NoSuchMovieException {
-        return new ArrayList(iMovieCustomRepo.findByMaker(maker));
+    public List<MovieDataTransfer> getMovieByMaker(String maker) {
+        List<Movie> movies = iMovieRepo.findByMaker(maker);
+        List<MovieDataTransfer> found = movies.stream()
+                .map(movie -> movieMapper.movieToMovieDto(movie))
+                .collect(Collectors.toList());
+
+        if (found.equals(Collections.emptyList())) {
+            throw new NoSuchMovieException("No such movie found.");
+        } else {
+            return found;
+        }
     }
 
     public void deleteById(Long id) {
         iMovieRepo.deleteById(id);
     }
 
-    public Movie updateMovie(Long id, String title, Year productionYear, String maker) {
+    public MovieDataTransfer updateMovie(Long id, MovieDataTransfer updater) {
 
-        Movie m = iMovieRepo.findById(id)
+        Movie found = iMovieRepo.findById(id)
                 .orElseThrow(() -> new NoSuchMovieException("No such movie found."));
 
-        m.builder().title(title).productionYear(productionYear).maker(maker).build();
-        return iMovieRepo.save(m);
+        Movie mappedMovie = movieMapper.movieDtoToMovie(updater);
+
+        found.setId(mappedMovie.getId());
+        found.setTitle(mappedMovie.getTitle());
+        found.setProductionYear(mappedMovie.getProductionYear());
+        found.setMaker(mappedMovie.getMaker());
+
+        return saveAndReturnDtoMovie(found);
     }
 
-    public Movie patchMovie(Long id, Movie updatedMovie) {
-        Movie foundMovie = iMovieRepo.findById(id)
+    public MovieDataTransfer patchMovie(Long id, MovieDataTransfer updater) {
+
+        Movie found = iMovieRepo.findById(id)
                 .orElseThrow(() -> new NoSuchMovieException("No such movie found."));
 
-        if (foundMovie.getClass() != null) {
-            if (foundMovie.getId().equals(updatedMovie.getId()) && foundMovie.getId() != null) {
-                iMovieRepo.save(foundMovie);
+        Movie mappedMovie = movieMapper.movieDtoToMovie(updater);
+
+        if (found.getClass() != null) {
+
+            if (found.getId() != mappedMovie.getId() && mappedMovie.getId() != null) {
+                found.setId(mappedMovie.getId());
+                iMovieRepo.save(found);
             }
-            if (foundMovie.getTitle().equals(updatedMovie.getTitle()) && foundMovie.getId() != null) {
-                iMovieRepo.save(foundMovie);
+
+            if (found.getTitle() != mappedMovie.getTitle() && mappedMovie.getTitle() != null) {
+                found.setTitle(mappedMovie.getTitle());
+                iMovieRepo.save(found);
             }
-            if (foundMovie.getProductionYear().equals(updatedMovie.getProductionYear()) && foundMovie.getId() != null) {
-                iMovieRepo.save(foundMovie);
+
+            if (found.getProductionYear() != mappedMovie.getProductionYear() && mappedMovie.getProductionYear() != null) {
+                found.setProductionYear(mappedMovie.getProductionYear());
+                iMovieRepo.save(found);
             }
-            if (foundMovie.getMaker().equals(updatedMovie.getMaker()) && foundMovie.getId() != null) {
-                iMovieRepo.save(foundMovie);
+
+            if (found.getMaker() != mappedMovie.getMaker() && mappedMovie.getMaker() != null) {
+                found.setMaker(mappedMovie.getMaker());
+                iMovieRepo.save(found);
             }
         }
-        return iMovieRepo.save(updatedMovie);
+        return saveAndReturnDtoMovie(mappedMovie);
     }
 }
