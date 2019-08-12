@@ -37,22 +37,22 @@ public class MovieController {
         return movieService.getMovieById(id);
     }
 
-    @GetMapping("/movieByTitle")
+    @GetMapping("/movieByTitle/{title}")
     @ResponseStatus(HttpStatus.OK)
-    public MovieDataTransfer getMovieByTitle(@RequestParam String title) {
+    public MovieDataTransfer getMovieByTitle(@PathVariable String title) {
         return movieService.getMovieByTitle(title);
     }
 
-    @GetMapping("/moviesByProduction")
+    @GetMapping("/moviesByProduction/{productionYear}")
     @ResponseStatus(HttpStatus.OK)
-    public MovieListDataTransfer getMovieByByProductionYear(@RequestParam Year year) {
-        List<MovieDataTransfer> foundMovies = movieService.getMovieByProductionYear(year);
+    public MovieListDataTransfer getMovieByByProductionYear(@PathVariable Year productionYear) {
+        List<MovieDataTransfer> foundMovies = movieService.getMovieByProductionYear(productionYear);
         return new MovieListDataTransfer(foundMovies);
     }
 
-    @GetMapping("/moviesByMaker")
+    @GetMapping("/moviesByMaker/{maker}")
     @ResponseStatus(HttpStatus.OK)
-    public MovieListDataTransfer getMovieByMaker(@RequestParam String maker) {
+    public MovieListDataTransfer getMovieByMaker(@PathVariable String maker) {
         List<MovieDataTransfer> foundMovies = movieService.getMovieByMaker(maker);
         return new MovieListDataTransfer(foundMovies);
     }
@@ -63,13 +63,13 @@ public class MovieController {
         movieService.deleteById(id);
     }
 
-    @PostMapping(path = "/addMovie", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping("/movies")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addMovie(@RequestBody MovieDataTransfer movie) {
-        movieService.addMovie(movie);
+    public MovieDataTransfer addMovie(@RequestBody MovieDataTransfer movie) {
+        return movieService.addMovie(movie);
     }
 
-    @PutMapping("/moviesUpdate/{id}")
+    @PutMapping("/movies/{id}")
     @ResponseStatus(HttpStatus.OK)
     public MovieDataTransfer updateMovie(@PathVariable Long id,
                                          @RequestBody MovieDataTransfer movie) {
