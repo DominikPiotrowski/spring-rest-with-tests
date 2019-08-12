@@ -7,7 +7,6 @@ import com.dominikpiotrowski.springrest.demo.repository.IMovieRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Year;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,8 +60,8 @@ public class MovieService {
         return found;
     }
 
-    public List<MovieDataTransfer> getMovieByProductionYear(Year year) {
-        List<Movie> movies = iMovieRepo.findByProductionYear(year);
+    public List<MovieDataTransfer> getMovieByProduction(Integer year) {
+        List<Movie> movies = iMovieRepo.findByProduction(year);
         List<MovieDataTransfer> found = movies.stream()
                 .map(movie -> movieMapper.movieToMovieDto(movie))
                 .collect(Collectors.toList());
@@ -100,7 +99,7 @@ public class MovieService {
 
         found.setId(mappedMovie.getId());
         found.setTitle(mappedMovie.getTitle());
-        found.setProductionYear(mappedMovie.getProductionYear());
+        found.setProduction(mappedMovie.getProduction());
         found.setMaker(mappedMovie.getMaker());
 
         return saveAndReturnDtoMovie(found);
@@ -115,8 +114,12 @@ public class MovieService {
 
         if (found.getClass() != null) {
 
-            if (found.getId() != mappedMovie.getId() && mappedMovie.getId() != null) {
-                found.setId(mappedMovie.getId());
+            if (found.getMaker() != mappedMovie.getMaker() && mappedMovie.getMaker() != null) {
+                found.setMaker(mappedMovie.getMaker());
+                iMovieRepo.save(found);
+            }
+            if (found.getProduction() != mappedMovie.getProduction() && mappedMovie.getProduction() != null) {
+                found.setProduction(mappedMovie.getProduction());
                 iMovieRepo.save(found);
             }
 
@@ -125,16 +128,11 @@ public class MovieService {
                 iMovieRepo.save(found);
             }
 
-            if (found.getProductionYear() != mappedMovie.getProductionYear() && mappedMovie.getProductionYear() != null) {
-                found.setProductionYear(mappedMovie.getProductionYear());
-                iMovieRepo.save(found);
-            }
-
-            if (found.getMaker() != mappedMovie.getMaker() && mappedMovie.getMaker() != null) {
-                found.setMaker(mappedMovie.getMaker());
+            if (found.getId() != mappedMovie.getId() && mappedMovie.getId() != null) {
+                found.setId(mappedMovie.getId());
                 iMovieRepo.save(found);
             }
         }
-        return saveAndReturnDtoMovie(mappedMovie);
+        return saveAndReturnDtoMovie(found);
     }
 }

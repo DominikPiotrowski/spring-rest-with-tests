@@ -29,7 +29,7 @@ public class MovieServiceTest {
 
     private static final Long ID = 99L;
     private static final String TITLE = "Moon";
-    private static final Year PRODUCTION_YEAR = Year.of(2009);
+    private static final Integer PRODUCTION_YEAR = 2009;
     private static final String MAKER = "Duncan Jones";
 
     @Mock
@@ -43,7 +43,7 @@ public class MovieServiceTest {
 
     @Test
     public void addMovie() {
-        Movie movie = Movie.builder().id(ID).title(TITLE).productionYear(PRODUCTION_YEAR).maker(MAKER).build();
+        Movie movie = Movie.builder().id(ID).title(TITLE).production(PRODUCTION_YEAR).maker(MAKER).build();
         MovieDataTransfer movieDataTransfer = MovieMapper.INSTANCE.movieToMovieDto(movie);
 
         when(iMovieRepo.save(any(Movie.class))).thenReturn(movie);
@@ -63,14 +63,14 @@ public class MovieServiceTest {
 
     @Test
     public void getMovieById() {
-        Movie movie = Movie.builder().id(ID).title(TITLE).productionYear(PRODUCTION_YEAR).maker(MAKER).build();
+        Movie movie = Movie.builder().id(ID).title(TITLE).production(PRODUCTION_YEAR).maker(MAKER).build();
 
         when(iMovieRepo.findById(anyLong())).thenReturn(Optional.ofNullable(movie));
         MovieDataTransfer movieDataTransfer = movieService.getMovieById(ID);
 
         assertThat(movieDataTransfer.getId(), equalTo(ID));
         assertThat(movieDataTransfer.getTitle(), equalTo(TITLE));
-        assertThat(movieDataTransfer.getProductionYear(), equalTo(PRODUCTION_YEAR));
+        assertThat(movieDataTransfer.getProduction(), equalTo(PRODUCTION_YEAR));
         assertThat(movieDataTransfer.getMaker(), equalTo(MAKER));
     }
 
@@ -82,20 +82,20 @@ public class MovieServiceTest {
 
     @Test
     public void getMovieByTitle() {
-        Movie movie = Movie.builder().id(ID).title(TITLE).productionYear(PRODUCTION_YEAR).maker(MAKER).build();
+        Movie movie = Movie.builder().id(ID).title(TITLE).production(PRODUCTION_YEAR).maker(MAKER).build();
 
         when(iMovieRepo.findByTitle(anyString())).thenReturn(Optional.ofNullable(movie));
         MovieDataTransfer movieDataTransfer = movieService.getMovieByTitle(TITLE);
 
         assertThat(movieDataTransfer.getId(), equalTo(ID));
         assertThat(movieDataTransfer.getTitle(), equalTo(TITLE));
-        assertThat(movieDataTransfer.getProductionYear(), equalTo(PRODUCTION_YEAR));
+        assertThat(movieDataTransfer.getProduction(), equalTo(PRODUCTION_YEAR));
         assertThat(movieDataTransfer.getMaker(), equalTo(MAKER));
     }
 
     @Test(expected = NoSuchMovieException.class)
     public void getMovieByTitleException() {
-        Movie movie = Movie.builder().id(ID).title(TITLE).productionYear(PRODUCTION_YEAR).maker(MAKER).build();
+        Movie movie = Movie.builder().id(ID).title(TITLE).production(PRODUCTION_YEAR).maker(MAKER).build();
         iMovieRepo.save(movie);
         movieService.getMovieByTitle("test title");
     }
@@ -104,28 +104,28 @@ public class MovieServiceTest {
 
     @Test
     public void getMovieByProductionYear() {
-        Movie movie = Movie.builder().id(ID).title(TITLE).productionYear(PRODUCTION_YEAR).maker(MAKER).build();
+        Movie movie = Movie.builder().id(ID).title(TITLE).production(PRODUCTION_YEAR).maker(MAKER).build();
         List<Movie> movies = new ArrayList<>();
         movies.add(movie);
 
-        when(iMovieRepo.findByProductionYear(any(Year.class))).thenReturn(movies);
-        List moviesFound = movieService.getMovieByProductionYear(PRODUCTION_YEAR);
+        when(iMovieRepo.findByProduction(anyInt())).thenReturn(movies);
+        List moviesFound = movieService.getMovieByProduction(PRODUCTION_YEAR);
 
-        assertThat(moviesFound.contains(movie.getProductionYear()), equalTo(movies.contains(movie.getProductionYear())));
+        assertThat(moviesFound.contains(movie.getProduction()), equalTo(movies.contains(movie.getProduction())));
     }
 
     @Test(expected = NoSuchMovieException.class)
     public void getMovieByProductionYearException() {
-        Movie movie = Movie.builder().id(ID).title(TITLE).productionYear(PRODUCTION_YEAR).maker(MAKER).build();
+        Movie movie = Movie.builder().id(ID).title(TITLE).production(PRODUCTION_YEAR).maker(MAKER).build();
         iMovieRepo.save(movie);
-        movieService.getMovieByProductionYear(Year.of(9999));
+        movieService.getMovieByProduction(9999);
     }
 
     //TODO bez mapowania w metodzie nie przejdzie
 
     @Test
     public void getMovieByByMaker() {
-        Movie movie = Movie.builder().id(ID).title(TITLE).productionYear(PRODUCTION_YEAR).maker(MAKER).build();
+        Movie movie = Movie.builder().id(ID).title(TITLE).production(PRODUCTION_YEAR).maker(MAKER).build();
         List<Movie> movies = new ArrayList<>();
         movies.add(movie);
 
@@ -137,7 +137,7 @@ public class MovieServiceTest {
 
     @Test(expected = NoSuchMovieException.class)
     public void getMovieByMakerException() {
-        Movie movie = Movie.builder().id(ID).title(TITLE).productionYear(PRODUCTION_YEAR).maker(MAKER).build();
+        Movie movie = Movie.builder().id(ID).title(TITLE).production(PRODUCTION_YEAR).maker(MAKER).build();
         iMovieRepo.save(movie);
         movieService.getMovieByMaker("Santa");
     }
@@ -151,8 +151,8 @@ public class MovieServiceTest {
 
     @Test
     public void updateMovie() {
-        Movie found = Movie.builder().id(ID).title(TITLE).productionYear(PRODUCTION_YEAR).maker(MAKER).build();
-        Movie updater = Movie.builder().id(ID).title("updated title").productionYear(Year.of(5555)).maker("updated maker").build();
+        Movie found = Movie.builder().id(ID).title(TITLE).production(PRODUCTION_YEAR).maker(MAKER).build();
+        Movie updater = Movie.builder().id(ID).title("updated title").production(5555).maker("updated maker").build();
         MovieDataTransfer updaterDto = MovieMapper.INSTANCE.movieToMovieDto(updater);
 
         when(iMovieRepo.findById(anyLong())).thenReturn(Optional.ofNullable(found));
@@ -163,13 +163,13 @@ public class MovieServiceTest {
         assertNotNull(iMovieRepo.findById(99L));
         assertThat(newMovie.getTitle(), equalTo("updated title"));
         assertThat(newMovie.getMaker(), equalTo("updated maker"));
-        assertThat(newMovie.getProductionYear(), equalTo(Year.of(5555)));
+        assertThat(newMovie.getProduction(), equalTo(5555));
     }
 
     @Test
     public void patchMovie() {
 
-        Movie before = Movie.builder().id(ID).title(TITLE).productionYear(PRODUCTION_YEAR).maker(MAKER).build();
+        Movie before = Movie.builder().id(ID).title(TITLE).production(PRODUCTION_YEAR).maker(MAKER).build();
         Movie patcher = Movie.builder().id(ID).title("patched title").maker("patched maker").build();
         MovieDataTransfer patcherDto = MovieMapper.INSTANCE.movieToMovieDto(patcher);
 

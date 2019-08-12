@@ -5,10 +5,7 @@ import com.dominikpiotrowski.springrest.demo.dao.Entity.dto.MovieListDataTransfe
 import com.dominikpiotrowski.springrest.demo.services.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.Year;
 import java.util.List;
 
 @RestController
@@ -43,10 +40,10 @@ public class MovieController {
         return movieService.getMovieByTitle(title);
     }
 
-    @GetMapping("/moviesByProduction/{productionYear}")
+    @GetMapping("/moviesByProduction/{production}")
     @ResponseStatus(HttpStatus.OK)
-    public MovieListDataTransfer getMovieByByProductionYear(@PathVariable Year productionYear) {
-        List<MovieDataTransfer> foundMovies = movieService.getMovieByProductionYear(productionYear);
+    public MovieListDataTransfer getMovieByByProduction(@PathVariable Integer production) {
+        List<MovieDataTransfer> foundMovies = movieService.getMovieByProduction(production);
         return new MovieListDataTransfer(foundMovies);
     }
 
@@ -76,7 +73,7 @@ public class MovieController {
         return movieService.updateMovie(id, movie);
     }
 
-    @PutMapping("/moviesPatch/{id}")
+    @PostMapping("/movies/{id}")
     @ResponseStatus(HttpStatus.OK)
     public MovieDataTransfer patchMovie(@PathVariable Long id, MovieDataTransfer movie) {
         return movieService.patchMovie(id, movie);

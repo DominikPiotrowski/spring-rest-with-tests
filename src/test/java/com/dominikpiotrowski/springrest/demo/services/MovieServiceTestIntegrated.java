@@ -37,7 +37,7 @@ public class MovieServiceTestIntegrated {
 
     @Test
     public void addMovie() {
-        MovieDataTransfer movieDataTransfer = MovieDataTransfer.builder().title("Wrath of Khan").productionYear(Year.of(1982)).maker("Meyer").build();
+        MovieDataTransfer movieDataTransfer = MovieDataTransfer.builder().title("Wrath of Khan").production(1982).maker("Meyer").build();
         movieService.addMovie(movieDataTransfer);
 
         List<MovieDataTransfer> movies =  movieService.findAll();
@@ -55,7 +55,7 @@ public class MovieServiceTestIntegrated {
     @Test
     public void getMovieById() {
         MovieDataTransfer movieDataTransfer = movieService.getMovieById(1L);
-        assertThat(movieDataTransfer.getProductionYear(), equalTo(Year.of(1979)));
+        assertThat(movieDataTransfer.getProduction(), equalTo(1979));
         assertThat(movieDataTransfer.getMaker(), equalTo("Wise"));
     }
 
@@ -67,7 +67,7 @@ public class MovieServiceTestIntegrated {
 
     @Test
     public void findByProductionYear() {
-        List movies = movieService.getMovieByProductionYear(Year.of(1979));
+        List movies = movieService.getMovieByProduction(1979);
         assertThat(movies.size(), equalTo(1));
     }
 
@@ -89,7 +89,7 @@ public class MovieServiceTestIntegrated {
     public void updateMovie() {
         Long id = 2L;
         MovieDataTransfer movieDataTransfer = movieService.getMovieById(id);
-        MovieDataTransfer updater = MovieDataTransfer.builder().id(2L).title("Hoho").productionYear(Year.of(9999)).maker("Santa").build();
+        MovieDataTransfer updater = MovieDataTransfer.builder().id(2L).title("Hoho").production(9999).maker("Santa").build();
         MovieDataTransfer movieUpdated = movieService.updateMovie(id, updater);
 
         assertThat(movieDataTransfer.getId(), equalTo(movieUpdated.getId()));
@@ -97,7 +97,6 @@ public class MovieServiceTestIntegrated {
         assertNotEquals("Terminator", movieUpdated.getTitle());
     }
 
-    //TODO dlaczego rzuca nulle na nienadpisywanych polach?
     @Test
     public void patchMovie() {
         Long id = 1L;
@@ -108,6 +107,6 @@ public class MovieServiceTestIntegrated {
         assertNotEquals(movieDataTransfer, moviePatched);
         assertNotEquals(movieDataTransfer.getTitle(), moviePatched.getTitle());
         assertThat(moviePatched.getTitle(), equalTo("Holy Hand Grenade of Antioch"));
-        assertThat(moviePatched.getProductionYear(), equalTo(Year.of(1979)));
+        assertThat(moviePatched.getProduction(), equalTo(1979));
     }
 }

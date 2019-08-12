@@ -11,8 +11,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import java.time.Year;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,8 +44,8 @@ public class MovieControllerTest extends AbstractRestControllerTest {
 
     @Test
     public void findAll() throws Exception {
-        MovieDataTransfer first = MovieDataTransfer.builder().title("Terminator").productionYear(Year.of(1984)).maker("Cameron").build();
-        MovieDataTransfer second = MovieDataTransfer.builder().title("Space Oddysey").productionYear(Year.of(1968)).maker("Cubrick").build();
+        MovieDataTransfer first = MovieDataTransfer.builder().title("Terminator").production(1984).maker("Cameron").build();
+        MovieDataTransfer second = MovieDataTransfer.builder().title("Space Oddysey").production(1968).maker("Cubrick").build();
 
         when(movieService.findAll()).thenReturn(Arrays.asList(first, second));
 
@@ -58,54 +56,48 @@ public class MovieControllerTest extends AbstractRestControllerTest {
 
     @Test
     public void getMovieById() throws Exception {
-        MovieDataTransfer first = MovieDataTransfer.builder().title("Terminator").productionYear(Year.of(1984)).maker("Cameron").build();
+        MovieDataTransfer first = MovieDataTransfer.builder().title("Terminator").production(1984).maker("Cameron").build();
 
         when(movieService.getMovieById(anyLong())).thenReturn(first);
 
         mockMvc.perform(get(MovieController.BASE_URL + "/movies/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title", equalTo("Terminator")))
-                .andExpect(jsonPath("$.productionYear", equalTo(1984)))
+                .andExpect(jsonPath("$.production", equalTo(1984)))
                 .andExpect(jsonPath("$.maker", equalTo("Cameron")));
     }
 
     @Test
     public void getMovieByTitle() throws Exception {
-        MovieDataTransfer first = MovieDataTransfer.builder().title("Terminator").productionYear(Year.of(1984)).maker("Cameron").build();
+        MovieDataTransfer first = MovieDataTransfer.builder().title("Terminator").production(1984).maker("Cameron").build();
 
         when(movieService.getMovieByTitle(anyString())).thenReturn(first);
 
         mockMvc.perform(get(MovieController.BASE_URL + "/movieByTitle/Terminator")
                 .param("title", first.getTitle()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.productionYear", equalTo(1984)))
+                .andExpect(jsonPath("$.production", equalTo(1984)))
                 .andExpect(jsonPath("$.maker", equalTo("Cameron")));
     }
 
-    //TODO     java.lang.AssertionError: JSON path "$.movieDataTransfersList"
+   // TODO java.lang.AssertionError: JSON path "$.movieDataTransfersList"
 
     @Test
-    public void getMovieByProductionYear() throws Exception {
-        MovieDataTransfer first = MovieDataTransfer.builder().id(1L).title("Terminator").productionYear(Year.of(1984)).maker("Cameron").build();
-        MovieDataTransfer second = MovieDataTransfer.builder().id(2L).title("Space Oddysey").productionYear(Year.of(1968)).maker("Cubrick").build();
-        List<MovieDataTransfer> movies = Arrays.asList(first, second);
+    public void getMovieByProduction() throws Exception {
+        MovieDataTransfer first = MovieDataTransfer.builder().id(1L).title("Terminator").production(1984).maker("Cameron").build();
 
-        when(movieService.getMovieByProductionYear(any(Year.class))).thenReturn(movies);
+        when(movieService.getMovieByProduction(anyInt())).thenReturn(Arrays.asList(first));
 
         mockMvc.perform(get(MovieController.BASE_URL + "/moviesByProduction/1984")
-                .param("productionYear", String.valueOf(first.getProductionYear())))
+                .param("production", String.valueOf(first.getProduction())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.movieDataTransfersList", hasSize(1)));
-//                .andExpect(jsonPath("$.title", equalTo("Terminator")));
     }
-
-    //TODO    java.lang.AssertionError: JSON path "$.movieDataTransfersList"
 
     @Test
     public void getMovieByMaker() throws Exception{
-        MovieDataTransfer first = MovieDataTransfer.builder().id(1L).title("Terminator").productionYear(Year.of(1984)).maker("Cameron").build();
-        MovieDataTransfer second = MovieDataTransfer.builder().id(2L).title("Space Oddysey").productionYear(Year.of(1968)).maker("Cubrick").build();
-        List<MovieDataTransfer> movies = Arrays.asList(first, second);
+        MovieDataTransfer first = MovieDataTransfer.builder().id(1L).title("Terminator").production(1984).maker("Cameron").build();
+        List<MovieDataTransfer> movies = Arrays.asList(first);
 
         when(movieService.getMovieByMaker(anyString())).thenReturn(movies);
 
@@ -113,12 +105,11 @@ public class MovieControllerTest extends AbstractRestControllerTest {
                 .param("maker", first.getMaker()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.movieDataTransfersList", hasSize(1)));
-                //.andExpect(jsonPath("$.title", equalTo("Terminator")));
     }
 
     @Test
     public void deleteById() throws Exception {
-        MovieDataTransfer first = MovieDataTransfer.builder().id(1L).title("Terminator").productionYear(Year.of(1984)).maker("Cameron").build();
+        MovieDataTransfer first = MovieDataTransfer.builder().id(1L).title("Terminator").production(1984).maker("Cameron").build();
 
         movieService.deleteById(first.getId());
         mockMvc.perform(get(MovieController.BASE_URL + "/movies/1"))
@@ -127,11 +118,9 @@ public class MovieControllerTest extends AbstractRestControllerTest {
         verify(movieService, times(1)).deleteById(first.getId());
     }
 
-    //TODO JSON parse error: year
-
     @Test
     public void addMovie() throws Exception {
-        MovieDataTransfer movie = MovieDataTransfer.builder().id(1L).title("Terminator").productionYear(Year.of(1984)).maker("Cameron").build();
+        MovieDataTransfer movie = MovieDataTransfer.builder().id(1L).title("Terminator").production(1984).maker("Cameron").build();
         when(movieService.addMovie(any(MovieDataTransfer.class))).thenReturn(movie);
 
         mockMvc.perform(post(MovieController.BASE_URL + "/movies")
@@ -140,18 +129,34 @@ public class MovieControllerTest extends AbstractRestControllerTest {
                 .andExpect(status().isCreated());
     }
 
-    //TODO JSON parse error: year
+    //TODO No value at JSON path "$.title"
 
     @Test
     public void updateMovie() throws Exception {
-        MovieDataTransfer toBeUpdated = MovieDataTransfer.builder().title("Terminator").productionYear(Year.of(1984)).maker("Cameron").build();
-        MovieDataTransfer afterUpdate = MovieDataTransfer.builder().title("Space Oddysey").productionYear(Year.of(1968)).maker("Cubrick").build();
+        MovieDataTransfer movie = MovieDataTransfer.builder().id(1L).title("Terminator").production(1984).maker("Cameron").build();
+        MovieDataTransfer afterUpdate = MovieDataTransfer.builder().id(1L).title("Space Oddysey").production(1968).maker("Cubrick").build();
 
-        when(movieService.updateMovie(anyLong(), eq(toBeUpdated))).thenReturn(afterUpdate);
+        when(movieService.updateMovie(anyLong(), eq(movie))).thenReturn(afterUpdate);
 
         mockMvc.perform(put(MovieController.BASE_URL + "/movies/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(afterUpdate)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title", equalTo("Space Oddysey")));
+    }
+
+    //TODO No value at JSON path "$.title"
+
+    @Test
+    public void patchMovie() throws Exception {
+        MovieDataTransfer movie = MovieDataTransfer.builder().id(1L).title("Terminator").production(1984).maker("Cameron").build();
+        MovieDataTransfer patchedMovie = MovieDataTransfer.builder().id(1L).title("Space Oddysey").production(1968).maker("Cubrick").build();
+
+        when(movieService.patchMovie(anyLong(), eq(movie))).thenReturn(patchedMovie);
+
+        mockMvc.perform(post(MovieController.BASE_URL + "/movies/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(patchedMovie)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title", equalTo("Space Oddysey")));
     }

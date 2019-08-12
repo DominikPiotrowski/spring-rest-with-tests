@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Year;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -15,6 +13,6 @@ public class MovieDataTransfer {
 
     private Long id;
     private String title;
-    private Year productionYear;
+    private Integer production;
     private String maker;
 }
