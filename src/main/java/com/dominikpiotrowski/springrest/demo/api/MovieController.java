@@ -73,9 +73,10 @@ public class MovieController {
         return movieService.updateMovie(id, movie);
     }
 
-    @PostMapping("/movies/{id}")
+    @PatchMapping("/movies/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public MovieDataTransfer patchMovie(@PathVariable Long id, MovieDataTransfer movie) {
+    public MovieDataTransfer patchMovie(@PathVariable Long id,
+                                        @RequestBody MovieDataTransfer movie) {
         return movieService.patchMovie(id, movie);
     }
 }

@@ -136,13 +136,17 @@ public class MovieControllerTest extends AbstractRestControllerTest {
         MovieDataTransfer movie = MovieDataTransfer.builder().id(1L).title("Terminator").production(1984).maker("Cameron").build();
         MovieDataTransfer afterUpdate = MovieDataTransfer.builder().id(1L).title("Space Oddysey").production(1968).maker("Cubrick").build();
 
-        when(movieService.updateMovie(anyLong(), eq(movie))).thenReturn(afterUpdate);
+        //w poprzednim wariancie wysyłałeś nie ten obiekt - mock musi reagować na to co wysyłasz, czyli dane nowego filmu
+        when(movieService.updateMovie(anyLong(), eq(afterUpdate))).thenReturn(afterUpdate);
 
         mockMvc.perform(put(MovieController.BASE_URL + "/movies/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(afterUpdate)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title", equalTo("Space Oddysey")));
+
+        //tutaj sprawdzamy czy metoda z serwisu została wykonana dokładnie jeden raz z oczekiwanymi parametrami
+        verify(movieService, times(1)).updateMovie(afterUpdate.getId(), afterUpdate);
     }
 
     //TODO No value at JSON path "$.title"
@@ -152,12 +156,15 @@ public class MovieControllerTest extends AbstractRestControllerTest {
         MovieDataTransfer movie = MovieDataTransfer.builder().id(1L).title("Terminator").production(1984).maker("Cameron").build();
         MovieDataTransfer patchedMovie = MovieDataTransfer.builder().id(1L).title("Space Oddysey").production(1968).maker("Cubrick").build();
 
-        when(movieService.patchMovie(anyLong(), eq(movie))).thenReturn(patchedMovie);
+        //to samo co w poprzednim teście
+        when(movieService.patchMovie(anyLong(), eq(patchedMovie))).thenReturn(patchedMovie);
 
-        mockMvc.perform(post(MovieController.BASE_URL + "/movies/1")
+        mockMvc.perform(patch(MovieController.BASE_URL + "/movies/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(patchedMovie)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title", equalTo("Space Oddysey")));
+
+        verify(movieService, times(1)).patchMovie(patchedMovie.getId(), patchedMovie);
     }
 }
