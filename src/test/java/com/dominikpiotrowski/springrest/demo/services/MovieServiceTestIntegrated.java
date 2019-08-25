@@ -1,39 +1,33 @@
 package com.dominikpiotrowski.springrest.demo.services;
 
-import com.dominikpiotrowski.springrest.demo.bootstrap.MovieBootstrap;
-import com.dominikpiotrowski.springrest.demo.dao.Entity.Movie;
 import com.dominikpiotrowski.springrest.demo.dao.Entity.dto.MovieDataTransfer;
-import com.dominikpiotrowski.springrest.demo.mapper.MovieMapper;
-import com.dominikpiotrowski.springrest.demo.repository.IMovieRepo;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.Year;
 import java.util.List;
 
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
+@ComponentScan("com.dominikpiotrowski.springrest.demo")
 @DataJpaTest
-//@AutoConfigureTestDatabase
+
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+// @DirtiesContext - odświeżanie kontekstu springa po każdym teście - sprawia to, że baza danych jest budowana na nowo
+// wydłuża to wykonanie testów, także nie mozna tego nadużywać
+// przy dużej liczbie testów zamiast używania tej adnotacji każdy test, który modyfikuje dane powinien sprzątać bazę po sobie (przywrócić usunięte obiekty, usunąć dodane, itp)
 public class MovieServiceTestIntegrated {
 
     @Autowired
-    IMovieRepo iMovieRepo;
     MovieService movieService;
-
-    @Before
-    public void setUp() {
-        MovieBootstrap bootstrap = new MovieBootstrap(iMovieRepo);
-        bootstrap.addMovies();
-        movieService = new MovieService(iMovieRepo, MovieMapper.INSTANCE);
-    }
 
     @Test
     public void addMovie() {
