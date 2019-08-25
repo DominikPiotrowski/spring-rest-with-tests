@@ -80,8 +80,6 @@ public class MovieControllerTest extends AbstractRestControllerTest {
                 .andExpect(jsonPath("$.maker", equalTo("Cameron")));
     }
 
-   // TODO java.lang.AssertionError: JSON path "$.movieDataTransfersList"
-
     @Test
     public void getMovieByProduction() throws Exception {
         MovieDataTransfer first = MovieDataTransfer.builder().id(1L).title("Terminator").production(1984).maker("Cameron").build();
@@ -129,34 +127,26 @@ public class MovieControllerTest extends AbstractRestControllerTest {
                 .andExpect(status().isCreated());
     }
 
-    //TODO No value at JSON path "$.title"
-
     @Test
     public void updateMovie() throws Exception {
-        MovieDataTransfer movie = MovieDataTransfer.builder().id(1L).title("Terminator").production(1984).maker("Cameron").build();
-        MovieDataTransfer afterUpdate = MovieDataTransfer.builder().id(1L).title("Space Oddysey").production(1968).maker("Cubrick").build();
+        MovieDataTransfer movieToUpdate = MovieDataTransfer.builder().id(1L).title("Space Oddysey").production(1968).maker("Cubrick").build();
 
-        //w poprzednim wariancie wysyłałeś nie ten obiekt - mock musi reagować na to co wysyłasz, czyli dane nowego filmu
-        when(movieService.updateMovie(anyLong(), eq(afterUpdate))).thenReturn(afterUpdate);
+        when(movieService.updateMovie(anyLong(), eq(movieToUpdate))).thenReturn(movieToUpdate);
 
         mockMvc.perform(put(MovieController.BASE_URL + "/movies/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(afterUpdate)))
+                .content(asJsonString(movieToUpdate)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title", equalTo("Space Oddysey")));
 
-        //tutaj sprawdzamy czy metoda z serwisu została wykonana dokładnie jeden raz z oczekiwanymi parametrami
-        verify(movieService, times(1)).updateMovie(afterUpdate.getId(), afterUpdate);
+        verify(movieService, times(1)).updateMovie(movieToUpdate.getId(), movieToUpdate);
     }
-
-    //TODO No value at JSON path "$.title"
 
     @Test
     public void patchMovie() throws Exception {
-        MovieDataTransfer movie = MovieDataTransfer.builder().id(1L).title("Terminator").production(1984).maker("Cameron").build();
+//        MovieDataTransfer movie = MovieDataTransfer.builder().id(1L).title("Terminator").production(1984).maker("Cameron").build();
         MovieDataTransfer patchedMovie = MovieDataTransfer.builder().id(1L).title("Space Oddysey").production(1968).maker("Cubrick").build();
 
-        //to samo co w poprzednim teście
         when(movieService.patchMovie(anyLong(), eq(patchedMovie))).thenReturn(patchedMovie);
 
         mockMvc.perform(patch(MovieController.BASE_URL + "/movies/1")
